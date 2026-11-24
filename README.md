@@ -59,7 +59,7 @@ Termos rápidos (o operador é médico, não programador):
      - compra 70 / ref 100 → margem 30,0%, ROI 42,86% → passa (fronteira);
      - compra 100 / ref 80 → margem −25,0%, ROI −20,0% → não passa;
      - compra ou ref ≤ 0 → sem margem.
-   - ⚠️ A mudança está em PRs por repositório ainda não mesclados. Relatórios antigos (base compra) e novos (base venda) **não são comparáveis**.
+   - Estado da migração: ver a seção **"Estado da migração"** abaixo. Relatórios antigos (base compra) e novos (base venda) **não são comparáveis**.
    - Piso de relevância: **R$50** (~US$10) — **só para cartas avulsas (singles)**; produtos **selados não têm piso** (decisão do operador, 2026-06-27: lá o único critério é a margem ≥30%).
 2. **Só Near Mint (NM).** Condição lida de célula dedicada, match EXATO `== "NM"` — nunca "contém NM" (isso já vazou SP no passado).
 3. **Nunca inventar preço.** Se a fonte falha, marca como fallback/erro e segue — jamais fabrica um número.
@@ -82,3 +82,37 @@ Tabela de cortes (todos sobre a **margem venda**; o valor e a unidade estão no 
 | eBay | 20 | inteiro (`min_gross_margin_percent: 20` no `config.yaml`), corte `>` estrito |
 
 > No CardTrader, `0.30` e `30` dão resultados absurdamente diferentes (`30` = 3000%, zero deals). eBay e Liga **não** têm flag `--threshold`: o limiar mora no `config.yaml`/constante do código.
+
+## Estado da migração (2026-11-24)
+
+Enquanto um repo estiver **PENDENTE**, a tabela dele ainda mostra a base antiga (compra).
+
+| Repo / scanner | Estado | Observação |
+|---|---|---|
+| CardTrader Pokémon | ✅ JÁ na main | margem sobre a venda + ROI separado (PR #75) |
+| CardTrader One Piece / Dragon Ball | ✅ JÁ na main | (PR #76) |
+| MYP Pokémon / DBZ / OP | ✅ JÁ na main | (PR #107) |
+| Liga | ✅ JÁ na main | (PR #59) |
+| eBay | ✅ JÁ na main | (PR #70) |
+| COMC | ✅ JÁ calcula sobre a venda | PENDENTE só renomear colunas (depende do PR #41) |
+| Selados PT-BR | ⏳ PENDENTE | PR #14 aberto; aguarda scan real com login no eBay |
+| integrated-scanner | ⏳ PENDENTE | PR #38 aberto; em validação |
+| Selados EN | ⏳ PENDENTE | ainda base compra; depende do PR #93 |
+
+## Códigos de saída do scanner CardTrader
+
+| Código | Significado |
+|---|---|
+| 0 | ok |
+| 1 | erro fatal |
+| 2 | argumentos inválidos ou run-guard (nada gravado) |
+| 20 | validação de preço parcial |
+| 21 | nenhum preço de checkout validado |
+| 22 | API de validação falhou em todos |
+| 23 | scan concluído com set(s) em falha operacional |
+| 96 | postprocess falhou (launchers) |
+| 130 | interrompido |
+
+Nos códigos 20 a 23 a planilha é gravada e o relatório traz o aviso no cabeçalho.
+
+**Em linguagem simples:** no CardTrader, o preço do scan vem em dólar e o checkout em reais sai cerca de 17,6% acima. Só a margem com preço validado no checkout vale para decisão.
