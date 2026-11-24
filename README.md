@@ -50,7 +50,17 @@ Termos rápidos (o operador é médico, não programador):
 
 ## Regras de ouro que valem pra TODOS os scanners
 
-1. **Margem é BRUTA, 30% mínimo.** Só `(revenda − compra) / compra`. Nenhuma taxa embutida (frete, cartão, IOF — você calcula por fora). Piso de relevância: **R$50** (~US$10) — **só para cartas avulsas (singles)**; produtos **selados não têm piso** (decisão do operador, 2026-06-27: lá o único critério é a margem ≥30%).
+1. **Margem sobre a VENDA, 30% mínimo.** `Margem venda % = (referência − compra) / referência`. É ela que decide o corte. Nenhuma taxa embutida (frete, cartão, IOF — você calcula por fora).
+   - **ROI sobre a aquisição** = `(referência − compra) / compra`. Só informativo: nunca filtra, classifica nem ordena.
+   - O corte mantém o mesmo número, agora sobre a venda. **Nunca converter 30% de margem em 30% de ROI.**
+   - Colunas: **"Margem venda %"** e **"ROI aquisição %"**.
+   - Casos de ouro (o mesmo teste existe em todos os repos):
+     - compra 75 / ref 100 → margem 25,0%, ROI 33,33% → não passa em 30;
+     - compra 70 / ref 100 → margem 30,0%, ROI 42,86% → passa (fronteira);
+     - compra 100 / ref 80 → margem −25,0%, ROI −20,0% → não passa;
+     - compra ou ref ≤ 0 → sem margem.
+   - ⚠️ A mudança está em PRs por repositório ainda não mesclados. Relatórios antigos (base compra) e novos (base venda) **não são comparáveis**.
+   - Piso de relevância: **R$50** (~US$10) — **só para cartas avulsas (singles)**; produtos **selados não têm piso** (decisão do operador, 2026-06-27: lá o único critério é a margem ≥30%).
 2. **Só Near Mint (NM).** Condição lida de célula dedicada, match EXATO `== "NM"` — nunca "contém NM" (isso já vazou SP no passado).
 3. **Nunca inventar preço.** Se a fonte falha, marca como fallback/erro e segue — jamais fabrica um número.
 4. **Entrega = tabela markdown no chat.** Nunca arquivo XLSX por padrão (só se você pedir). Gerada pela ferramenta do repo, nunca montada à mão. Ver [`05-MODELO-ENTREGA.md`](05-MODELO-ENTREGA.md).
@@ -59,7 +69,16 @@ Termos rápidos (o operador é médico, não programador):
 7. **Sem check-ins automáticos** (decisão do operador, 2026-09-12): nenhuma sessão Claude agenda `send_later`/Routine/cron para "re-checar" PR, CI ou tarefa, nem mantém acompanhamento automático de PR (subscribe + re-agendamento) por conta própria — **só quando o operador solicitar explicitamente**. A sessão termina quando o trabalho termina; se o harness assinou o PR sozinho ao criá-lo, cancele a assinatura. Acompanhamento é pedido, não default.
 
 ⚠️ **Cuidado com a convenção de threshold (pega muita gente):**
-- **Percentual INTEIRO** (`30` = 30%): **MYP** (`--threshold 30`), **Liga** (`MIN_MARGIN_PERCENT 30`), **eBay** (`min_gross_margin_percent: 30` no `config.yaml`).
-- **Fração** (`0.30` = 30%): **CardTrader** (`--threshold 0.30`), **COMC** (`--min-margin 0.30`), **Selados** (`min_total_margin_pct: 0.30`).
+Tabela de cortes (todos sobre a **margem venda**; o valor e a unidade estão no scanner):
+
+| Scanner | Corte | Unidade |
+|---|---|---|
+| MYP | 30 | inteiro (`--threshold 30`); `aggregate` recebe fração `0.30` |
+| Liga | 30 | inteiro (`MIN_MARGIN_PERCENT 30`) |
+| CardTrader | 0.30 | fração (`--threshold 0.30`) |
+| COMC | 20 | inteiro, desconto sobre a referência (`--min-discount 20`) |
+| Selados EN | 0.30 | fração (`min_total_margin_pct: 0.30`) |
+| Selados PT-BR | 0.30 | fração; compra = custo-base Liga × 1,35; referência estimada = EN × 0,50 |
+| eBay | 20 | inteiro (`min_gross_margin_percent: 20` no `config.yaml`), corte `>` estrito |
 
 > No CardTrader, `0.30` e `30` dão resultados absurdamente diferentes (`30` = 3000%, zero deals). eBay e Liga **não** têm flag `--threshold`: o limiar mora no `config.yaml`/constante do código.

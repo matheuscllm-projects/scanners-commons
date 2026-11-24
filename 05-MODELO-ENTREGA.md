@@ -79,10 +79,11 @@ Combinada, com separador ` · `, **os dois lados sempre** (o link da loja onde c
 ## Colunas canônicas completas (modelo de referência — CardTrader/MYP)
 
 ```
-# | Margem % | <preço loja> | <preço ref> | Dif | Carta | Set | Raridade | Cond | Qtd | Flag | Links
+# | Margem venda % | ROI aquisição % | <preço loja> | <preço ref> | Dif | Carta | Set | Raridade | Cond | Qtd | Flag | Links
 ```
 - **#** = ranking por margem (maior primeiro).
-- **Margem %** = margem BRUTA (sem taxa).
+- **Margem venda %** = `(referência − compra) / referência`, sem taxa. É o que decide o corte.
+- **ROI aquisição %** = `(referência − compra) / compra`. Só informativo: não filtra, não classifica, não ordena.
 - **preço loja / preço ref** = os dois preços comparados (na moeda do scanner).
 - **Dif** = diferença absoluta.
 - **Carta** = nome + número (ver acima).
@@ -96,6 +97,8 @@ Mostra **TODAS** as linhas (aprovadas + rejeitadas/near-miss), ordenadas por mar
 ---
 
 ## Exemplo real (CardTrader, set Journey Together, 2026-06-22)
+
+> ⚠️ Exemplo histórico em base **compra** (`(ref−compra)/compra`, coluna antiga "Margem %"). Não é comparável com a base venda atual; o formato novo tem "Margem venda %" e "ROI aquisição %".
 
 Cenário em que **nenhuma** carta bateu o limiar de 30% — antes isto entregava vazio; agora mostra os "quase-lá" com aviso honesto:
 

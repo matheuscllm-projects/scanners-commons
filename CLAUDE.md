@@ -29,13 +29,13 @@ se roda scan nenhum; roda-se documentação e o tooling compartilhado.
 
 ## Invariantes da frota (resumo — texto canônico no `README.md`)
 
-- **Margem BRUTA, mínimo 30%** — `(revenda − compra)/compra`, sem taxa embutida.
+- **Margem sobre a VENDA, mínimo 30%** — `(referência − compra)/referência`, sem taxa embutida. É ela que decide o corte. **ROI sobre a aquisição** `(referência − compra)/compra` é só informativo (nunca filtra, classifica nem ordena). Nunca converter 30% de margem em 30% de ROI. Detalhe e casos de ouro no `README.md`.
 - **Piso R$50 (~US$10) SÓ para singles** — selados não têm piso (decisão do
   operador, 2026-06-27).
 - **Só Near Mint** (match EXATO, nunca substring) · **nunca inventar preço** ·
   **nunca recomendar compra** · **entrega = tabela markdown no chat**, gerada pela
   ferramenta do repo, todas as linhas.
-- ⚠️ **Threshold:** inteiro (`30`) = MYP/Liga/eBay; fração (`0.30`) = CT/COMC/Selados.
+- ⚠️ **Threshold:** inteiro = MYP (30), Liga (30), COMC (20), eBay (20); fração = CT (0.30), Selados (0.30). Tabela completa no `README.md`.
 - **Sem check-ins automáticos** (operador, 2026-09-12): nenhuma sessão agenda `send_later`/Routine/cron
   nem mantém acompanhamento automático de PR por conta própria — só sob pedido explícito do operador
   (regra 7 do `README.md`).
