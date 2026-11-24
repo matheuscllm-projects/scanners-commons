@@ -23,7 +23,7 @@ Ordenados pelos que mais aparecem / mais doem. Cada um tem: **o que é**, **como
 
 ## 🟠 4. Entrega vazia mesmo tendo precificado (handoff scanner → relatório)
 - **O que é:** o scanner precificava as cartas mas **jogava fora as abaixo do limiar antes de montar o relatório** → o relatório lia uma planilha vazia → "_nada a entregar_". Era o caso do **CardTrader** (corrigido na v2.22).
-- **Como evita:** guardar TODAS as cartas precificadas (com flag "abaixo do limiar"); o limiar vira só uma classificação no fim. Quando ninguém bate 30%, mostrar os "quase-lá" (near-miss) com aviso honesto. Há teste travando esse contrato (um rename de coluna agora quebra um teste em vez de entregar vazio).
+- **Como evita:** guardar TODAS as cartas precificadas (com flag "abaixo do limiar"); o limiar vira só uma classificação no fim. Quando ninguém bate o corte de margem sobre a venda (ex.: 30%), mostrar os "quase-lá" (near-miss) com aviso honesto. Há teste travando esse contrato (um rename de coluna agora quebra um teste em vez de entregar vazio).
 
 ## 🟠 5. Preço de referência inflado → falso positivo de "deal"
 Aparece de jeitos diferentes em cada scanner; é a causa nº1 de "oportunidade" que não existe:
@@ -45,7 +45,7 @@ Aparece de jeitos diferentes em cada scanner; é a causa nº1 de "oportunidade" 
 - **Como evita:** na nuvem, usar **tcgcsv.com** como fonte de preço real (MYP já faz via `--tcg-source tcgcsv`; COMC nasceu assim). pokemontcg.io fica pra rodar no PC local.
 
 ## 🟡 9. Confusão de unidade do threshold (fração × percentual)
-- Ver o aviso no [`README.md`](README.md): **inteiro** (`30`) = MYP, Liga, eBay; **fração** (`0.30`) = CardTrader, COMC, Selados. Errar isso dá "0 deals" ou "tudo é deal".
+- Ver a tabela de cortes no [`README.md`](README.md): **inteiro** = MYP (30), Liga (30), COMC (20), eBay (20, `>` estrito); **fração** = CardTrader (0.30), Selados (0.30). Errar isso dá "0 deals" ou "tudo é deal". O corte é sempre sobre a **margem venda** `(ref−compra)/ref`, nunca sobre o ROI.
 
 ## 🟢 10. Documentação desatualizada (contagem de testes etc.)
 - **O que é:** o `CLAUDE.md` de cada repo às vezes diz "36 testes" quando já são 50. Confunde quem retoma ("será que faltam testes?").
@@ -58,7 +58,7 @@ Aparece de jeitos diferentes em cada scanner; é a causa nº1 de "oportunidade" 
 ## 🟠 12. Entregar resultado fora do modelo-padrão (coluna `Links` incompleta)
 - **O que é:** ao montar a tabela de deals no chat, entregar com **só o link da oferta** (ou colunas de link separadas) em vez da coluna única **`Links` = `[oferta](url) · [TCG](url)`** do modelo MYP. O link de **referência (TCGplayer)** fica de fora → o operador não consegue conferir oferta e preço-âncora lado a lado num clique. Bateu no **CardTrader** em 2026-06-26 (scan vintage): a 1ª entrega saiu com `Link` = só CT, sem o TCG.
 - **Como percebe:** a tabela tem uma coluna `Link`/`Oferta` com um link só, ou duas colunas de link separadas. O modelo correto tem **uma** coluna `Links` com os **dois** hyperlinks juntos.
-- **Como evita:** seguir o [`05-MODELO-ENTREGA.md`](05-MODELO-ENTREGA.md) à risca em **toda** entrega de scanner (MYP, CT, Liga, COMC, eBay, Selados, PSA, Integrado): colunas no estilo `# | Margem % | <preço fonte> | TCG | Dif | Carta | Set | Raridade | Cond | Qtd | Links`, onde `Carta` = nome+número e `Links` SEMPRE combina oferta+TCG. Links **lidos do XLSX** (colunas `Link CardTrader` + `Link TCG`), nunca inventados. Entrega = tabela no chat (não arquivo), com **todos** os deals.
+- **Como evita:** seguir o [`05-MODELO-ENTREGA.md`](05-MODELO-ENTREGA.md) à risca em **toda** entrega de scanner (MYP, CT, Liga, COMC, eBay, Selados, PSA, Integrado): colunas no estilo `# | Margem venda % | ROI aquisição % | <preço fonte> | TCG | Dif | Carta | Set | Raridade | Cond | Qtd | Links`, onde `Carta` = nome+número e `Links` SEMPRE combina oferta+TCG. Links **lidos do XLSX** (colunas `Link CardTrader` + `Link TCG`), nunca inventados. Entrega = tabela no chat (não arquivo), com **todos** os deals.
 
 ## 🟡 13. Sessão de nuvem: `pkill -f` mata o próprio shell; agentes paralelos grandes morrem por 429 sem gravar nada
 - **O que é:** duas armadilhas do ambiente Claude Code na nuvem (2026-09-12, sessão da análise de investimento Pokémon TCG). (a) `pkill -f <padrão>` casa com a linha de comando do **próprio** Bash que o invocou quando o padrão aparece nela (ex.: `pkill -f pull_vol` num comando que também cita `pull_vol2.py`) → o shell morre com exit 144. (b) 6 subagentes de pesquisa em paralelo, cada um com ~300k tokens de orçamento, derrubaram 4 por `rate_limit` (HTTP 429, "session limit") **antes de gravar qualquer resultado** — só 2 de 6 frentes sobreviveram.

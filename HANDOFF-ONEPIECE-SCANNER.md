@@ -91,7 +91,7 @@ mas NÃO bloqueie a v1 por isso (registre como backlog).
 
 ## 3. Invariantes da frota (não negociar)
 
-Margem BRUTA base compra `(TCG_BRL − CT_BRL)/CT_BRL` · threshold **fração**
+Margem BRUTA base compra `(TCG_BRL − CT_BRL)/CT_BRL` (base compra na época; padronizado para margem sobre a venda em 2026-11) · threshold **fração**
 (0.30) · **NM por match exato** `== "Near Mint"` · graded/assinada nunca ·
 **nunca inventar preço** (sem ref → fora com contagem + semref) · **nunca
 recomendar compra** · entrega = tabela markdown gerada pela ferramenta, colada
