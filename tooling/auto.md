@@ -352,7 +352,7 @@ objetivo original sem pedir confirmação.
 
 ## 9. Invariantes que o master NUNCA quebra
 
-- **Respeite o `CLAUDE.md` do repo**: margem **BRUTA 30%** (sem taxa embutida),
+- **Respeite o `CLAUDE.md` do repo**: margem **sobre a venda 30%** `(referência − compra)/referência` (sem taxa embutida; ROI é só informativo),
   **NM-only** (match exato `== "NM"`), **nunca inventar preço** (fonte falhou →
   fallback rotulado), **entrega = tabela markdown no chat** gerada pela
   ferramenta do repo e colada **VERBATIM** (nunca XLSX por padrão; nunca

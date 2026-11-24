@@ -50,7 +50,17 @@ Termos rápidos (o operador é médico, não programador):
 
 ## Regras de ouro que valem pra TODOS os scanners
 
-1. **Margem é BRUTA, 30% mínimo.** Só `(revenda − compra) / compra`. Nenhuma taxa embutida (frete, cartão, IOF — você calcula por fora). Piso de relevância: **R$50** (~US$10) — **só para cartas avulsas (singles)**; produtos **selados não têm piso** (decisão do operador, 2026-06-27: lá o único critério é a margem ≥30%).
+1. **Margem sobre a VENDA, 30% mínimo.** `Margem venda % = (referência − compra) / referência`. É ela que decide o corte. Nenhuma taxa embutida (frete, cartão, IOF — você calcula por fora).
+   - **ROI sobre a aquisição** = `(referência − compra) / compra`. Só informativo: nunca filtra, classifica nem ordena.
+   - O corte mantém o mesmo número, agora sobre a venda. **Nunca converter 30% de margem em 30% de ROI.**
+   - Colunas: **"Margem venda %"** e **"ROI aquisição %"**.
+   - Casos de ouro (o mesmo teste existe em todos os repos):
+     - compra 75 / ref 100 → margem 25,0%, ROI 33,33% → não passa em 30;
+     - compra 70 / ref 100 → margem 30,0%, ROI 42,86% → passa (fronteira);
+     - compra 100 / ref 80 → margem −25,0%, ROI −20,0% → não passa;
+     - compra ou ref ≤ 0 → sem margem.
+   - Estado da migração: ver a seção **"Estado da migração"** abaixo. Relatórios antigos (base compra) e novos (base venda) **não são comparáveis**.
+   - Piso de relevância: **R$50** (~US$10) — **só para cartas avulsas (singles)**; produtos **selados não têm piso** (decisão do operador, 2026-06-27: lá o único critério é a margem ≥30%).
 2. **Só Near Mint (NM).** Condição lida de célula dedicada, match EXATO `== "NM"` — nunca "contém NM" (isso já vazou SP no passado).
 3. **Nunca inventar preço.** Se a fonte falha, marca como fallback/erro e segue — jamais fabrica um número.
 4. **Entrega = tabela markdown no chat.** Nunca arquivo XLSX por padrão (só se você pedir). Gerada pela ferramenta do repo, nunca montada à mão. Ver [`05-MODELO-ENTREGA.md`](05-MODELO-ENTREGA.md).
@@ -59,7 +69,50 @@ Termos rápidos (o operador é médico, não programador):
 7. **Sem check-ins automáticos** (decisão do operador, 2026-09-12): nenhuma sessão Claude agenda `send_later`/Routine/cron para "re-checar" PR, CI ou tarefa, nem mantém acompanhamento automático de PR (subscribe + re-agendamento) por conta própria — **só quando o operador solicitar explicitamente**. A sessão termina quando o trabalho termina; se o harness assinou o PR sozinho ao criá-lo, cancele a assinatura. Acompanhamento é pedido, não default.
 
 ⚠️ **Cuidado com a convenção de threshold (pega muita gente):**
-- **Percentual INTEIRO** (`30` = 30%): **MYP** (`--threshold 30`), **Liga** (`MIN_MARGIN_PERCENT 30`), **eBay** (`min_gross_margin_percent: 30` no `config.yaml`).
-- **Fração** (`0.30` = 30%): **CardTrader** (`--threshold 0.30`), **COMC** (`--min-margin 0.30`), **Selados** (`min_total_margin_pct: 0.30`).
+Tabela de cortes (todos sobre a **margem venda**; o valor e a unidade estão no scanner):
+
+| Scanner | Corte | Unidade |
+|---|---|---|
+| MYP | 30 | inteiro (`--threshold 30`); `aggregate` recebe fração `0.30` |
+| Liga | 30 | inteiro (`MIN_MARGIN_PERCENT 30`) |
+| CardTrader | 0.30 | fração (`--threshold 0.30`) |
+| COMC | 20 | inteiro, desconto sobre a referência (`--min-discount 20`) |
+| Selados EN | 0.30 | fração (`min_total_margin_pct: 0.30`) |
+| Selados PT-BR | 0.30 | fração; compra = custo-base Liga × 1,35; referência estimada = EN × 0,50 |
+| eBay | 20 | inteiro (`min_gross_margin_percent: 20` no `config.yaml`), corte `>` estrito |
 
 > No CardTrader, `0.30` e `30` dão resultados absurdamente diferentes (`30` = 3000%, zero deals). eBay e Liga **não** têm flag `--threshold`: o limiar mora no `config.yaml`/constante do código.
+
+## Estado da migração (2026-11-24)
+
+Enquanto um repo estiver **PENDENTE**, a tabela dele ainda mostra a base antiga (compra).
+
+| Repo / scanner | Estado | Observação |
+|---|---|---|
+| CardTrader Pokémon | ✅ JÁ na main | margem sobre a venda + ROI separado (PR #75) |
+| CardTrader One Piece / Dragon Ball | ✅ JÁ na main | (PR #76) |
+| MYP Pokémon / DBZ / OP | ✅ JÁ na main | (PR #107) |
+| Liga | ✅ JÁ na main | (PR #59) |
+| eBay | ✅ JÁ na main | (PR #70) |
+| COMC | ✅ JÁ calcula sobre a venda | PENDENTE só renomear colunas (depende do PR #41) |
+| Selados PT-BR | ⏳ PENDENTE | PR #14 aberto; aguarda scan real com login no eBay |
+| integrated-scanner | ⏳ PENDENTE | PR #38 aberto; em validação |
+| Selados EN | ⏳ PENDENTE | ainda base compra; depende do PR #93 |
+
+## Códigos de saída do scanner CardTrader
+
+| Código | Significado |
+|---|---|
+| 0 | ok |
+| 1 | erro fatal |
+| 2 | argumentos inválidos ou run-guard (nada gravado) |
+| 20 | validação de preço parcial |
+| 21 | nenhum preço de checkout validado |
+| 22 | API de validação falhou em todos |
+| 23 | scan concluído com set(s) em falha operacional |
+| 96 | postprocess falhou (launchers) |
+| 130 | interrompido |
+
+Nos códigos 20 a 23 a planilha é gravada e o relatório traz o aviso no cabeçalho.
+
+**Em linguagem simples:** no CardTrader, o preço do scan vem em dólar e o checkout em reais sai cerca de 17,6% acima. Só a margem com preço validado no checkout vale para decisão.

@@ -60,10 +60,11 @@ negocia, porque cada um é irreversível:
 Valem mesmo com o contrato completo em mãos, e valem mais ainda sem ele. Esta
 lista é uma cópia manual do §9 do contrato: ao editar o §9, edite aqui também.
 
-- **O `CLAUDE.md` do repo manda.** Margem **bruta**, mínimo **30%**, sem taxa
-  embutida (`(revenda − compra)/compra`; o eBay tem regra própria no `CLAUDE.md`
-  dele); threshold (a direção muda por repo: fração em CardTrader/COMC/Selados,
-  inteiro em MYP/Liga/eBay); NM-only por match exato; nunca inventar preço —
+- **O `CLAUDE.md` do repo manda.** Margem **sobre a venda**, mínimo **30%**
+  (`(referência − compra)/referência`, sem taxa embutida; é ela que decide o
+  corte; o ROI `(referência − compra)/compra` é só informativo); threshold (a
+  direção muda por repo: fração em CardTrader/Selados, inteiro em MYP/Liga/COMC/eBay,
+  com COMC e eBay em 20 — tabela no `README.md`); NM-only por match exato; nunca inventar preço —
   fonte que falhou vira fallback rotulado, jamais número fabricado.
 - **Entrega = tabela markdown no chat**, gerada pela ferramenta do repo e colada
   verbatim. Nunca remontada à mão, nunca arquivo por padrão, todas as linhas,
