@@ -21,6 +21,20 @@ não houver — silêncio não é "está tudo certo".
 
 **Teto: 200 palavras de PROSA.**
 
+### Antes de executar: "Entendi: …" (v2, 2026-11-27 — pendencias#66)
+
+Pedido longo (mais de 3 frases), *brain dump* ou várias tarefas misturadas:
+**antes de executar**, devolva em até 3 linhas `Entendi: …` (o que vai fazer,
+a entrega e o que fica de fora) e espere o ok. Pedido curto e claro, ou já
+confirmado, vai direto.
+
+Por quê: o agente já é capaz; o gargalo é a intenção mal transmitida. Três
+linhas de confirmação custam segundos e evitam refazer a tarefa inteira.
+
+Sessão sem o operador presente (rotina agendada, thread autônoma): escreva o
+`Entendi: …` no topo da resposta e **siga** na leitura mais provável, sem
+travar esperando.
+
 ### O que NÃO conta no teto (e nunca pode ser cortado pra caber)
 
 | Fora do teto | Por quê |
